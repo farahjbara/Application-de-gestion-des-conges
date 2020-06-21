@@ -4,11 +4,15 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Controller\UserReinitialiserMotDePasse;
+use App\Controller\UserResettingPasswordRequest;
+
 
 
 /**
@@ -44,8 +48,32 @@ use Doctrine\ORM\Mapping as ORM;
  *             "validation_groups"={"edit"},
  *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED') and is_granted('EDIT', object)",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
- *         }
+ *         },
+ *         "user_mot_de_passe_oublie"={
+ *             "method"="POST",
+ *             "path"="/mot-de-passe-oublie",
+ *             "controller"=UserResettingPasswordRequest::class,
+ *             "formats"={"json"},
+ *             "read"=false,
+ *             "denormalization_context"={"groups"={"user:resetting-password-request"}},
+ *             "validation_groups"={"resetting_password_request"},
+ *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED') == false",
+ *             "security_message"="Vous êtes déjà connecté !",
+ *         },
+ *         "user_reinitialiser_mot_de_passe"={
+ *             "method"="POST",
+ *             "path"="/reinitialiser-mot-de-passe",
+ *             "controller"=UserReinitialiserMotDePasse::class,
+ *             "read"=false,
+ *             "denormalization_context"={"groups"={"user:resetting-password-reset"}},
+ *             "validation_groups"={"resetting_password_reset"},
+ *             "formats"={"json"},
+ *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED') == false",
+ *             "security_message"="Vous êtes déjà connecté",
+ *
+ *         },
  *     }
+ *
  * )
  */
 class User implements UserInterface
@@ -58,8 +86,9 @@ class User implements UserInterface
 	private $id;
 
 	/**
-	 * @Assert\NotBlank(groups={"write"})
-	 * @Groups({"write", "edit"})
+	 * @Assert\NotBlank(groups={"write", "resetting_password_request"})
+	 * @Assert\Email(groups={"write", "resetting_password_request"})
+	 * @Groups({"write", "edit", "user:resetting-password-request"})
 	 * @ORM\Column(type="string", length=180, unique=true)
 	 */
 	private $email;
@@ -78,24 +107,24 @@ class User implements UserInterface
 	private $password;
 
 	/**
-	 * @Assert\NotBlank(groups={"write"})
+	 * @Assert\NotBlank(groups={"write", "resetting_password_reset"})
 	 * @Assert\Length(
 	 *     min=8,
 	 *     minMessage="Votre mot de passe doit faire minimum {{limit}} caractères",
 	 *     groups={"write"}
 	 *)
-	 * @Groups({"write", "edit"})
+	 * @Groups({"write", "edit", "user:resetting-password-reset"})
 	 */
 	private $plainPassword;
 
 	/**
 	 *
-	 * @Assert\NotBlank(groups={"write"})
+	 * @Assert\NotBlank(groups={"write", "resetting_password_reset"})
 	 * @Assert\EqualTo(
 	 *     propertyPath="plainPassword", message="Vous n'avez pas tapé le même mot de passe",
-	 *     groups={"write"}
+	 *     groups={"write", "resetting_password_reset"}
 	 * )
-	 * @Groups({"write", "edit"})
+	 * @Groups({"write", "edit", "user:resetting-password-reset"})
 	 */
 	private $confirmPassword;
 
@@ -159,6 +188,11 @@ class User implements UserInterface
 	 * @ORM\Column(type="integer", nullable=true)
 	 */
 	private $nbrJrsRestant;
+
+	/**
+	 * @ORM\Column(name="confirmation_token", type="string", length=180, unique=true, nullable=true)
+	 */
+	private $confirmationToken;
 
 
 	public function __construct()
@@ -377,6 +411,22 @@ class User implements UserInterface
 		$this->nbrJrsRestant = $nbrJrsRestant;
 
 		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getConfirmationToken()
+	{
+		return $this->confirmationToken;
+	}
+
+	/**
+	 * @param mixed $confirmationToken
+	 */
+	public function setConfirmationToken($confirmationToken): void
+	{
+		$this->confirmationToken = $confirmationToken;
 	}
 
 
