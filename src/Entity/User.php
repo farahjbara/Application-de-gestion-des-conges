@@ -3,13 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * @UniqueEntity("email" ,message="L'email que vous avez indiqué est déja utilisé!")
@@ -22,14 +22,27 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *         "user_list"={
  *             "method"="GET",
  *             "path"="/users",
- *             "security"="is_granted('ROLE_ADMIN', 'ROLE_RH')",
+ *             "security"="is_granted('ROLE_CHEF_PROJET', 'ROLE_RH')",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
  *         },
  *         "user_new"={
  *             "method"="POST",
  *             "path"="/users",
  *             "denormalization_context"={"groups"={"write"}},
- *             "security"="is_granted('ROLE_ADMIN', 'ROLE_RH')",
+ *             "validation_groups"={"write"},
+ *             "security"="is_granted('ROLE_CHEF_PROJET', 'ROLE_RH')",
+ *             "security_message"="Vous n'avez pas les droits d'accéder"
+ *         }
+ *     },
+ *     itemOperations={
+ *         "get"={
+ *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED') and is_granted('VIEW', object)",
+ *             "security_message"="Vous n'avez pas les droits d'accéder"
+ *         },
+ *         "put"={
+ *             "denormalization_context"={"groups"={"edit"}},
+ *             "validation_groups"={"edit"},
+ *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED') and is_granted('EDIT', object)",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
  *         }
  *     }
@@ -45,17 +58,20 @@ class User implements UserInterface
 	private $id;
 
 	/**
+	 * @Assert\NotBlank(groups={"write"})
+	 * @Groups({"write", "edit"})
 	 * @ORM\Column(type="string", length=180, unique=true)
 	 */
 	private $email;
 
 	/**
+	 * @Groups({"write"})
 	 * @ORM\Column(type="json")
 	 */
 	private $roles = [];
 
 	/**
-	 * @var string The hashed password
+	 * @var string The hashed password,
 	 * @ORM\Column(type="string")
 	 *
 	 */
@@ -67,7 +83,8 @@ class User implements UserInterface
 	 *     min=8,
 	 *     minMessage="Votre mot de passe doit faire minimum {{limit}} caractères",
 	 *     groups={"write"}
-	 *    )
+	 *)
+	 * @Groups({"write", "edit"})
 	 */
 	private $plainPassword;
 
@@ -78,48 +95,75 @@ class User implements UserInterface
 	 *     propertyPath="plainPassword", message="Vous n'avez pas tapé le même mot de passe",
 	 *     groups={"write"}
 	 * )
+	 * @Groups({"write", "edit"})
 	 */
 	private $confirmPassword;
 
 	/**
+	 * @Assert\NotBlank(groups={"write", "edit"})
 	 * @ORM\Column(type="string", length=8)
+	 * @Groups({"write", "edit"})
 	 */
 	private $cin;
 
 	/**
+	 * @Assert\NotBlank(groups={"write"})
 	 * @ORM\Column(type="string", length=255)
+	 * @Groups({"write", "edit"})
 	 */
 	private $nom;
 
 	/**
+	 * @Assert\NotBlank(groups={"write"})
 	 * @ORM\Column(type="string", length=255)
+	 * @Groups({"write", "edit"})
 	 */
 	private $prenom;
 
 	/**
 	 * @ORM\Column(type="string", length=255)
+	 * @Groups({"write", "edit"})
 	 */
 	private $numTel;
 
 	/**
 	 * @ORM\Column(type="string", length=255)
+	 * @Assert\NotBlank(groups={"write", "edit"})
+	 * @Groups({"write", "edit"})
 	 */
 	private $fonction;
 
 	/**
 	 * @ORM\Column(type="boolean")
+	 * @Groups({"write", "edit"})
 	 */
 	private $enabled;
 
 	/**
-	 * @ORM\OneToMany(targetEntity=Demande::class, mappedBy="user", orphanRemoval=true)
+	 * @Assert\NotBlank(groups={"write", "edit"})
+	 * @Groups({"write", "edit"})
+	 * @ORM\Column(type="integer", nullable=true)
 	 */
-	private $demandes;
+	private $soldeAnnuel;
+
+	/**
+	 * @Assert\NotBlank(groups={"write", "edit"})
+	 * @Groups({"write", "edit"})
+	 * @ORM\Column(type="integer", nullable=true)
+	 */
+	private $nbrJrsPris;
+
+	/**
+	 * @Assert\NotBlank(groups={"write", "edit"})
+	 * @Groups({"write", "edit"})
+	 * @ORM\Column(type="integer", nullable=true)
+	 */
+	private $nbrJrsRestant;
+
 
 	public function __construct()
 	{
 		$this->enabled = true;
-		$this->demandes = new ArrayCollection();
 	}
 
 	public function getId(): ?int
@@ -127,17 +171,6 @@ class User implements UserInterface
 		return $this->id;
 	}
 
-	public function getEmail(): ?string
-	{
-		return $this->email;
-	}
-
-	public function setEmail(string $email): self
-	{
-		$this->email = $email;
-
-		return $this;
-	}
 
 	/**
 	 * A visual identifier that represents this user.
@@ -221,10 +254,21 @@ class User implements UserInterface
 		return $this->confirmPassword;
 	}
 
-
 	public function setConfirmPassword($confirmPassword): void
 	{
 		$this->confirmPassword = $confirmPassword;
+	}
+
+	public function getEmail(): ?string
+	{
+		return $this->email;
+	}
+
+	public function setEmail(string $email): self
+	{
+		$this->email = $email;
+
+		return $this;
 	}
 
 	public function getCin(): ?string
@@ -299,36 +343,42 @@ class User implements UserInterface
 		return $this;
 	}
 
-	/**
-	 * @return Collection|Demande[]
-	 */
-	public function getDemandes(): Collection
+	public function getSoldeAnnuel(): ?int
 	{
-		return $this->demandes;
+		return $this->soldeAnnuel;
 	}
 
-	public function addDemande(Demande $demande): self
+	public function setSoldeAnnuel(int $soldeAnnuel): self
 	{
-		if (!$this->demandes->contains($demande)) {
-			$this->demandes[] = $demande;
-			$demande->setUser($this);
-		}
+		$this->soldeAnnuel = $soldeAnnuel;
 
 		return $this;
 	}
 
-	public function removeDemande(Demande $demande): self
+	public function getNbrJrsPris(): ?int
 	{
-		if ($this->demandes->contains($demande)) {
-			$this->demandes->removeElement($demande);
-			// set the owning side to null (unless already changed)
-			if ($demande->getUser() === $this) {
-				$demande->setUser(null);
-			}
-		}
+		return $this->nbrJrsPris;
+	}
+
+	public function setNbrJrsPris(int $nbrJrsPris): self
+	{
+		$this->nbrJrsPris = $nbrJrsPris;
+
+		return $this;
+	}
+
+	public function getNbrJrsRestant(): ?int
+	{
+		return $this->nbrJrsRestant;
+	}
+
+	public function setNbrJrsRestant(int $nbrJrsRestant): self
+	{
+		$this->nbrJrsRestant = $nbrJrsRestant;
 
 		return $this;
 	}
 
 
 }
+

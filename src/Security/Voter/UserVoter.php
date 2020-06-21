@@ -2,7 +2,6 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Demande;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -10,7 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class DemandeVoter extends Voter
+class UserVoter extends Voter
 {
 	private $security;
 	/**
@@ -28,8 +27,8 @@ class DemandeVoter extends Voter
 	{
 		// replace with your own logic
 		// https://symfony.com/doc/current/security/voters.html
-		return in_array($attribute, ['EDIT', 'VIEW', 'DELETE'])
-			&& $subject instanceof \App\Entity\Demande;
+		return in_array($attribute, ['EDIT', 'VIEW'])
+			&& $subject instanceof \App\Entity\User;
 	}
 
 	protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -44,8 +43,7 @@ class DemandeVoter extends Voter
 		switch ($attribute) {
 			case 'VIEW':
 			case 'EDIT':
-			case 'DELETE':
-				return $this->canEditDeleteView($subject, $user);
+				return $this->canEditView($subject, $user);
 				break;
 		}
 
@@ -53,9 +51,9 @@ class DemandeVoter extends Voter
 
 	}
 
-	public function canEditDeleteView(Demande $demande, User $user)
+	public function canEditView($subject, User $user)
 	{
-		return $demande->getUser() === $user || $this->security->isGranted('ROLE_CHEF_PROJET') || $this->security->isGranted('ROLE_RH');
+		return $subject === $user || $this->security->isGranted('ROLE_CHEF_PROJET') || $this->security->isGranted('ROLE_RH');
 	}
 
 }

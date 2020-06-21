@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ddb69ca4b40fda73478850b70307f08",
+    "content-hash": "c65bb73687735a36219d792dec3eb597",
     "packages": [
         {
             "name": "api-platform/api-pack",
@@ -4381,16 +4381,16 @@
         },
         {
             "name": "symfony/mailer",
-            "version": "v5.1.0",
+            "version": "v5.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
-                "reference": "7308b053e16a4f43e2aaf32dc11f72174f59247e"
+                "reference": "203f236f1c2f4d8980f3c4120c8032c8cfe1e893"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mailer/zipball/7308b053e16a4f43e2aaf32dc11f72174f59247e",
-                "reference": "7308b053e16a4f43e2aaf32dc11f72174f59247e",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/203f236f1c2f4d8980f3c4120c8032c8cfe1e893",
+                "reference": "203f236f1c2f4d8980f3c4120c8032c8cfe1e893",
                 "shasum": ""
             },
             "require": {
@@ -4459,7 +4459,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-05-30T20:35:19+00:00"
+            "time": "2020-06-11T21:20:02+00:00"
         },
         {
             "name": "symfony/mime",
