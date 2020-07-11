@@ -22,11 +22,11 @@ use App\Controller\UserResettingPasswordRequest;
  *
  * @ApiResource(
  *   formats={"json"},
- *   collectionOperations={
+ *    collectionOperations={
  *         "user_list"={
  *             "method"="GET",
  *             "path"="/users",
- *             "security"="is_granted('ROLE_CHEF_PROJET', 'ROLE_RH')",
+ *             "security"="is_granted('ROLE_CHEF_PROJET') or is_granted('ROLE_RH')",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
  *         },
  *         "user_new"={
@@ -70,10 +70,8 @@ use App\Controller\UserResettingPasswordRequest;
  *             "formats"={"json"},
  *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED') == false",
  *             "security_message"="Vous êtes déjà connecté",
- *
  *         },
  *     }
- *
  * )
  */
 class User implements UserInterface
