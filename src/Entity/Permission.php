@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   formats={"json"},
  *   collectionOperations={
  *         "get"={
- *             "security"="is_granted('ROLE_CHEF_PROJET', 'ROLE_RH')",
+ *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED')",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
  *         },
  *         "post"={
