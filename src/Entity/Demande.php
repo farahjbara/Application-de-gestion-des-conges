@@ -19,8 +19,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *   formats={"json"},
  *   collectionOperations={
  *         "get"={
- *             "security"="is_granted('ROLE_CHEF_PROJET', 'ROLE_RH')",
- *             "security_message"="Vous n'avez pas les droits d'accéder"
+ *            "security"="is_granted('IS_AUTHENTICATED_REMEMBERED')",
+ *            "security_message"="Vous n'avez pas les droits d'accéder"
  *         },
  *         "post"={
  *             "security"="is_granted('IS_AUTHENTICATED_REMEMBERED')",
