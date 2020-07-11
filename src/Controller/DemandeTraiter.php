@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Demande;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mailer\MailerInterface;
@@ -30,6 +31,18 @@ class DemandeTraiter
 			$emailHtml = "<p>Bonjour,</p><p> Votre demande de congé est validée ..</p>";
 
 			//recalculer solde congé
+			$dateDebut = $data->getDateDebut();
+			$dateFin = $data->getDateFin();
+			$nbJoursConge = $dateFin->diff($dateDebut)->format("%a");
+
+			$typeConge = $data->getTypeConge();
+
+			/** @var User $user */
+			$user = $data->getUser(); // récuperer user via demande
+			$user->setSoldeAnnuel($user->getSoldeAnnuel() - $nbJoursConge);
+			$user->setNbrJrsPris($user->getNbrJrsPris() + $nbJoursConge);
+			$user->setNbrJrsRestant($user->getNbrJrsRestant() - $nbJoursConge);
+
 
 		} elseif ($valeur === 'non') {
 			$data->setEtat('refusée');
