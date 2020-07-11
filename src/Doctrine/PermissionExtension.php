@@ -6,11 +6,11 @@ namespace App\Doctrine;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use App\Entity\Demande;
+use App\Entity\Permission;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 
-final class DemandeExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
+final class PermissionExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
 	private $security;
 
@@ -31,7 +31,7 @@ final class DemandeExtension implements QueryCollectionExtensionInterface, Query
 
 	private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
 	{
-		if (Demande::class !== $resourceClass || $this->security->isGranted('ROLE_RH') || $this->security->isGranted('ROLE_CHEF_PROJET') || null === $user = $this->security->getUser()) {
+		if (Permission::class !== $resourceClass || $this->security->isGranted('ROLE_RH') || $this->security->isGranted('ROLE_CHEF_PROJET') || null === $user = $this->security->getUser()) {
 			return;
 		}
 
