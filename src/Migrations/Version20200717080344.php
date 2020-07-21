@@ -27,8 +27,8 @@ final class Version20200717080344 extends AbstractMigration
         $this->addSql('CREATE TABLE projet (id INT AUTO_INCREMENT NOT NULL, nom_projet VARCHAR(255) NOT NULL, date_debut_projet DATE NOT NULL, date_limite DATE NOT NULL, etat_projet VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE permission (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, heure_debut TIME NOT NULL, heure_fin TIME NOT NULL, date_permission DATE NOT NULL, etat_permission VARCHAR(255) NOT NULL, approbation_chef TINYINT(1) NOT NULL, INDEX IDX_E04992AAA76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE conge (id INT AUTO_INCREMENT NOT NULL, id_conge VARCHAR(255) NOT NULL, solde_annuel VARCHAR(255) NOT NULL, nbr_jrs_pris INT NOT NULL, nbr_jrs_restant INT NOT NULL, type VARCHAR(255) NOT NULL, etat_conge VARCHAR(255) NOT NULL, approbation_chef TINYINT(1) NOT NULL, approbation_rh TINYINT(1) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE demande ADD CONSTRAINT FK_2694D7A5A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
-        $this->addSql('ALTER TABLE permission ADD CONSTRAINT FK_E04992AAA76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE demande ADD CONSTRAINT FK_2694D7A5A76ED395 FOREIGN KEY (user_id) REFERENCES user (email)');
+        $this->addSql('ALTER TABLE permission ADD CONSTRAINT FK_E04992AAA76ED395 FOREIGN KEY (user_id) REFERENCES user (email)');
     }
 
     public function down(Schema $schema) : void

@@ -12,9 +12,6 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Controller\UserReinitialiserMotDePasse;
 use App\Controller\UserResettingPasswordRequest;
-
-
-
 /**
  * @UniqueEntity("email" ,message="L'email que vous avez indiqué est déja utilisé!")
  * @UniqueEntity("cin" ,message="cin que vous avez indiqué est déja utilisé!")
@@ -29,12 +26,16 @@ use App\Controller\UserResettingPasswordRequest;
  *             "security"="is_granted('ROLE_CHEF_PROJET') or is_granted('ROLE_RH')",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
  *         },
+ *         "user_all"={
+ *             "method"="GET",
+ *             "path"="/init",
+ *             "security_message"="Vous n'avez pas les droits d'accéder"
+ *         },
  *         "user_new"={
  *             "method"="POST",
  *             "path"="/users",
  *             "denormalization_context"={"groups"={"write"}},
  *             "validation_groups"={"write"},
- *             "security"="is_granted('ROLE_CHEF_PROJET', 'ROLE_RH')",
  *             "security_message"="Vous n'avez pas les droits d'accéder"
  *         }
  *     },
@@ -429,4 +430,3 @@ class User implements UserInterface
 
 
 }
-
